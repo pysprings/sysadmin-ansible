@@ -21,7 +21,7 @@ License and Credit
 Unless otherwise noted, the contents are available under a `cc-by-sa 4.0
 international licence <http://creativecommons.org/licenses/by-sa/4.0/>`_
 
-The foundation-default-colors theme for pelican is courtesy of `Kenton Hamaluik <https://github.com/FuzzyWuzzie>`.
+The foundation-default-colors theme for pelican is courtesy of `Kenton Hamaluik <https://github.com/FuzzyWuzzie>`_.
 
 
 Other Requirements
