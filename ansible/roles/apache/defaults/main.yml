@@ -1,0 +1,7 @@
+---
+http_port: 80
+https_port: 443
+sslkeyfile: ssl.key
+sslcertfile: ssl.crt
+use_sslintermediate: false
+hostname: localhost.localdomain

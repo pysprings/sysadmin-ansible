@@ -1,0 +1,4 @@
+*.swp
+*.pyc
+*.pyo
+blog_source/output

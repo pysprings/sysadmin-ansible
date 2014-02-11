@@ -1,0 +1,11 @@
+This presentaiton was generated with rst2html5 (https://github.com/marianoguerra/rst2html5).
+It might work with other rst to presentation systems, but that hasn't been tried.
+
+To rebuild the slides, do:
+
+rst2html5 --deck-js --pretty-print-code --embed-content sysadmin.rst > sysadmin_slides.html
+
+The content of these slides is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International license (cc-by-sa):
+
+

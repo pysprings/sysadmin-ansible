@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+	<h2>{{ article.title }}</h2>
+	{{ article.content }}
+	<hr/>
+	<h6>Written by <a href="{{ SITEURL }}/author/{{ article.author|lower|replace(' ', '-') }}.html">{{ article.author }}</a> {% if article.category %}in <a href="{{ SITEURL }}/{{ article.category.url }}">{{ article.category}}</a> {% endif %}on {{ article.locale_date }}.{% if article.tags|count > 0 %} Tags: {% for tag in article.tags %}<a href="{{ SITEURL }}/{{ tag.url }}">{{ tag }}</a>, {% endfor %}{% endif %}</h6>
+</article>
+
+<hr/>
+{% if DISQUS_SITENAME %}
+<script data-isso="/comments/"
+		data-isso-css="true"
+		data-isso-lang="en"
+		data-isso-reply-to-self="false"
+		src="/comments/js/embed.min.js"></script>
+<div class="row">
+	<div class="small-12 columns">
+		<h3>Comments</h3>
+		<div id="isso_thread"></div>
+			<section id="isso-thread"></section>
+	</div>
+</div>
+{% endif %}
+{% endblock %}

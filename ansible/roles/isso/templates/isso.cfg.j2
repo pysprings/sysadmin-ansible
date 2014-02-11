@@ -1,0 +1,10 @@
+[general]
+; database location, check permissions, created if not exists
+dbpath = /var/www/isso/comments.db
+; your website or blog (not the location of Isso!)
+; you can add multiple hosts for local development
+; or SSL connections. There is no wildcard to allow
+; any domain.
+host =
+    http://{{ hostname }}/{{ blog_endpoint }}
+    https://{{ hostname }}/{{ blog_endpoint }}

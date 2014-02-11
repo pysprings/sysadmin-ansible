@@ -1,0 +1,12 @@
+WSGIDaemonProcess isso user=apache group=apache threads=5
+WSGIScriptAlias /comments /var/www/isso/isso.wsgi
+WSGISocketPrefix run/wsgi
+
+
+<Directory /var/www/isso>
+    WSGIProcessGroup isso
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIScriptReloading On
+    Order deny,allow
+    Allow from all
+</Directory>

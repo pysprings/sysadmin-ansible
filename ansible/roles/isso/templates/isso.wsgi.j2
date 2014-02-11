@@ -1,0 +1,10 @@
+activate_this = '/var/www/isso/env/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
+
+import os
+
+from isso import make_app
+from isso.core import Config
+
+application = make_app(Config.load("/etc/isso/isso.cfg"))
+

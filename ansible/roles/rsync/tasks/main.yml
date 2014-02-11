@@ -1,0 +1,11 @@
+- name: ensure rsync related packages are installed
+  action: yum name={{ item }} state=latest
+  with_items:
+    - rsync
+    - xinetd
+
+- name: generate rsync config
+  template: src=rsyncd.conf.j2 dest=/etc/rsyncd.conf owner=root group=root
+
+- name: enable and start rsync
+  service: name=rsyncd state=restarted

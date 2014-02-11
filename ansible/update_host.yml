@@ -1,0 +1,15 @@
+# requires --extra-vars="target=somevhostname yumcommand=update"
+
+- name: update hosts
+  hosts: "{{ target }}"
+  sudo: true
+
+  tasks:
+  - name: expire-caches
+    command: yum clean expire-cache
+
+  - name: yum -y {{ yumcommand }}
+    command:  yum -y {{ yumcommand }}
+    async: 7200
+    poll: 50
+

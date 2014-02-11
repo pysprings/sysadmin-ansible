@@ -1,0 +1,17 @@
+############################################################
+# Handlers for restarting services
+############################################################
+
+- name: restart firewalld
+  action: service name=firewalld state=restarted
+
+- name: restart sshd
+  action: service name=sshd state=restarted
+
+- name: restart httpd
+  action: service name=httpd state=restarted
+
+- name: restart xinetd
+  action: service name=xinetd state=restarted
+
+

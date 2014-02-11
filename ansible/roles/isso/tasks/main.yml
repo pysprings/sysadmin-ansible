@@ -1,0 +1,38 @@
+- name: ensure isso packages are installed
+  action: yum name={{ item }} state=latest
+  with_items:
+      - python-pip
+      - python-virtualenv
+      - mod_wsgi
+      - gcc
+
+- name: create directory for isso app
+  file: path=/var/www/isso  owner=apache group=apache mode=1755 state=directory
+
+- name: install isso into a virtualenv
+  pip: name="isso" virtualenv=/var/www/isso/env state=latest
+
+- name: change isso virtualenv so that it can be used by apache
+  file: path=/var/www/isso/env  owner=apache group=apache mode=1755 state=directory recurse=yes
+
+- name: generate isso wsgi
+  template: src=isso.wsgi.j2 dest=/var/www/isso/isso.wsgi owner=apache group=apache mode=0755
+  notify:
+      - restart httpd
+
+- name: generate isso apache conf
+  template: src=isso.conf.j2 dest=/etc/httpd/conf.d/isso.conf owner=root group=root mode=0644
+  notify:
+      - restart httpd
+
+- name: create directory for isso configuration
+  file: path=/etc/isso  owner=apache group=apache mode=1755 state=directory
+
+- name: generate isso config
+  template: src=isso.cfg.j2 dest=/etc/isso/isso.cfg owner=apache group=apache mode=0644
+  notify:
+      - restart httpd
+
+- name: allow httpd to relay connections
+  command: setsebool -P httpd_can_network_relay 1
+

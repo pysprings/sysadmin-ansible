@@ -1,0 +1,47 @@
+- name: ensure apache related packages are installed
+  action: yum name={{ item }} state=latest
+  with_items:
+      - httpd
+      - mod_ssl
+
+- name: open up http/https ports in firewall (fedora)
+  action: command firewall-cmd --permanent {{ item }}
+  with_items:
+    - --add-port={{ http_port }}/tcp
+    - --add-port={{ https_port }}/tcp
+  when: $is_fedora
+  notify:
+    - restart firewalld
+
+- name: open up http/https ports in firewall (rhel)
+  action: command lokkit -p '{{ item }}:tcp'
+  with_items:
+  - "{{ http_port }}"
+  - "{{ https_port }}"
+  when: $is_rhel
+
+- name: copy ssl key
+  copy: src=private/certs/{{ envtype }}/{{ sslkeyfile }} dest=/etc/pki/tls/private/{{ sslkeyfile }}
+
+- name: copy ssl cert
+  copy: src=private/certs/{{ envtype }}/{{ sslcertfile }} dest=/etc/pki/tls/certs/{{ sslcertfile }}
+
+- name: copy the intermediate cert
+  copy: src=private/certs/{{ envtype }}/{{ sslintermediatecertfile }} dest=/etc/pki/tls/certs/{{ sslintermediatecertfile }}
+  when: use_sslintermediate
+
+- name: generate rhel httpd ssl config
+  template: src=ssl.conf.rhel.j2 dest=/etc/httpd/conf.d/ssl.conf owner=root group=root mode=0644
+  when: $is_rhel
+  notify:
+  - restart httpd
+
+- name: generate fedora httpd ssl config
+  template: src=ssl.conf.j2 dest=/etc/httpd/conf.d/ssl.conf owner=root group=root mode=0644
+  when: $is_fedora
+  notify:
+  - restart httpd
+
+- name: start and enable httpd
+  service: name=httpd enabled=yes state=started
+

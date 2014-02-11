@@ -1,0 +1,37 @@
+---
+- name: setup system for blog hosting
+  sudo: true
+  hosts: all
+  vars_files:
+      - private/blog.yml
+      - common/vars/global.yml
+  vars:
+      - blog_endpoint: ''
+
+  handlers:
+      - include: common/handlers/restart_services.yml
+
+  roles:
+      - { role: base, tags:['base'] }
+      - { role: apache, tags: ['apache'] }
+      - { role: isso, tags: ['isso'] }
+      - { role: rsync, tags: ['rsync'] }
+
+  tasks:
+      - name: add fedora user to apache group
+        user: name=fedora append=yes groups=apache
+
+- name: build blog and sync content
+  hosts: all
+  vars:
+      - sysadmin_root: ../
+      - blog_src: ../blog_source/output/
+  tags:
+      - content
+
+  tasks:
+      - name: build local blog content
+        local_action: command chdir={{ sysadmin_root }} env_sysadmin/bin/pelican blog_source/ -o blog_source/output -s blog_source/pelicanconf.py
+
+      - name: rsync blog content
+        synchronize: src={{ blog_src }} dest=/var/www/html/

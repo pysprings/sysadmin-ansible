@@ -1,0 +1,76 @@
+- name: ensure base packages are installed
+  action: yum name={{ item }} state=latest
+  with_items:
+      - openssl
+      - screen
+      - vim
+      - openssh-clients
+      - system-config-firewall-base
+      - libsemanage-python
+      - libselinux-python
+      - chrony
+      - firewalld
+
+- name: add main system user
+  user: name={{username}} password={{ userpw }} groups=wheel
+
+- name: copy screen config
+  copy: src=screenrc dest=/home/{{ username }}/.screenrc
+
+- name: set main system users authorized keys
+  authorized_key: user={{ username }} key='{{ access_sshkey }}'
+
+- name: configure sudo
+  copy: src=sudoers dest=/etc/sudoers owner=root group=root mode=0440
+
+- name: set root password
+  user: name=root password={{rootpw}}
+
+- name: stop and disable iptables (fedora)
+  service: name={{ item }} enabled=no state=stopped
+  with_items:
+      - iptables
+      - ip6tables
+  when: is_fedora
+
+- name: ensure firewalld service is unmasked
+  file: path=/etc/systemd/system/firewalld.service state=absent
+  when: is_fedora
+
+- name: start and enable firewalld (fedora)
+  service: name=firewalld enabled=yes state=started
+  when: is_fedora
+
+- name: open up ports in firewall (fedora)
+  action: command firewall-cmd --permanent {{ item }}
+  with_items:
+    - --add-service=ssh
+    - --add-port={{sshd_port}}/tcp
+  when: is_fedora
+  notify:
+    - restart firewalld
+
+- name: open up ports in firewall (rhel)
+  action: command lokkit -p '{{item}}:tcp'
+  with_items:
+  - 22
+  - '{{sshd_port}}'
+  when: $is_rhel
+
+- name: set hostname (rhel)
+  when: is_rhel
+  template: src=rhel-sysconfig-network.conf.j2 dest=/etc/sysconfig/network owner=root group=root mode=0644
+
+- name: check to see if sshd port is already known by selinux
+  shell: semanage port -l | grep ssh
+  register: sshd_selinux_port
+
+- name: allow alternate sshd port
+  command: semanage port -a -t ssh_port_t -p tcp {{ sshd_port }}
+  when: sshd_selinux_port.stdout.find('{{ sshd_port }}') == -1
+
+- name: update sshd config
+  template: src=sshd_config.j2 dest=/etc/ssh/sshd_config owner=root group=root mode=0600
+  notify:
+    - restart sshd
+
